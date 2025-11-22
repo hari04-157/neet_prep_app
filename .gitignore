@@ -1,0 +1,21 @@
+# Ignore Virtual Environment
+.venv/
+venv/
+env/
+
+# Ignore Python compiled files
+__pycache__/
+*.pyc
+
+# Ignore Large Data Files (Not needed for app)
+*.csv
+train.csv
+test.csv
+validation.csv
+
+# Ignore Helper Scripts (Not needed for app)
+convert_data.py
+check_models.py
+
+# Ignore VS Code settings
+.vscode/
