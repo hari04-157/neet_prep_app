@@ -4,13 +4,23 @@ import random
 import os
 import pandas as pd
 import google.generativeai as genai
+from dotenv import load_dotenv  # Import this to read the .env file
+
+# --- 1. LOAD HIDDEN KEYS ---
+load_dotenv()  # This reads the .env file
 
 app = Flask(__name__)
 
 # --- 🔐 CONFIGURATION ---
-# Using your working key
-MY_GOOGLE_KEY = "AIzaSyCUx7YyuP_DPCX5MxFP7MYn4Cfeh6CQRVw" 
-genai.configure(api_key=MY_GOOGLE_KEY)
+# Read the key securely from the environment variable
+MY_GOOGLE_KEY = os.getenv("GOOGLE_API_KEY")
+
+if not MY_GOOGLE_KEY:
+    print("❌ ERROR: GOOGLE_API_KEY not found! Please create a .env file.")
+else:
+    # Configure Gemini with the secure key
+    genai.configure(api_key=MY_GOOGLE_KEY)
+    print("✅ API Key loaded securely!")
 
 # --- DATA LOADING ---
 def classify_subject(text):
@@ -144,23 +154,50 @@ def submit():
         "feedback": feedback, "badge": badge, "analysis": detailed_result
     })
 
-# --- AI CHAT (Text Only - Fixed Model) ---
+# --- AI CHAT (Secure & Smart) ---
 @app.route('/api/chat_ai', methods=['POST'])
 def chat_ai():
     data = request.json
     user_query = data.get('query', '')
     context = data.get('context', '')
+    is_exam_finished = data.get('is_exam_finished', False)
+
+    # Check if key is loaded
+    if not MY_GOOGLE_KEY:
+         return jsonify({"reply": "❌ Server Error: API Key not configured. Tell the developer to check .env file!"})
+
+    # --- LOGIC: Check if exam is done ---
+    if not is_exam_finished:
+        # SCENARIO 1: Exam is ONGOING -> Anti-Cheating Mode
+        system_instruction = """
+        You are Hari, a supportive boyfriend. Harini is currently taking a timed NEET mock exam.
+        RULES:
+        1. DO NOT give the answer key or reveal which option is correct.
+        2. If she asks for the answer (e.g., "What is answer to Q1?"), refuse playfully. 
+           Say: "No cheating Dr. Harini! 😉 Try your best first." or "I can't help during the exam!"
+        3. If she asks for a conceptual hint (e.g., "What is gravity?"), explain the concept briefly (2 sentences max), but DO NOT reveal the answer.
+        """
+    else:
+        # SCENARIO 2: Exam is FINISHED -> Teaching Mode
+        system_instruction = f"""
+        You are Hari, a supportive boyfriend. Harini has finished her exam.
+        1. You can now explain answers freely.
+        2. Use the provided context to explain why the correct answer is right.
+        3. Be encouraging.
+        Context from Exam Paper: {context}
+        """
 
     prompt = f"""
-    You are Hari, a supportive boyfriend helping Harini study for NEET.
-    Question: {context}
-    Her Doubt: {user_query}
-    Explain simply (max 3 sentences). Be encouraging. Use 'we' and 'us'. No markdown.
+    {system_instruction}
+    
+    Her Message: {user_query}
+    Context provided: {context}
     """
     
     try:
-        # ✅ FIXED: Using the model from your list
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        # Using gemini-1.5-flash as it is the standard stable model. 
+        # If 2.5-flash works for you, you can change it back.
+        model = genai.GenerativeModel('gemini-2.5-flash') 
         response = model.generate_content(prompt)
         return jsonify({"reply": response.text})
     except Exception as e:

@@ -19,3 +19,4 @@ check_models.py
 
 # Ignore VS Code settings
 .vscode/
+.env
