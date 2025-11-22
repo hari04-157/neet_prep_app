@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Mrs. Harini ❤️</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root { 
+            --primary: #6c5ce7; --primary-dark: #4834d4;
+            --success: #00b894; --danger: #ff7675; 
+            --dark: #2d3436; --bg: #dfe6e9;
+            --chat-bg: #111827; /* Dark Portfolio Theme */
+            --chat-accent: #0ea5e9; /* Sky Blue */
+        }
+        
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; padding: 0; height: 100dvh; 
+            display: flex; flex-direction: column;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            overflow: hidden;
+        }
+        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* --- WELCOME & QUIZ STYLES --- */
+        #welcome-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(255,255,255,0.4); backdrop-filter: blur(20px); padding: 20px; }
+        .dashboard-card { background: rgba(255,255,255,0.95); padding: 40px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center; }
+        
+        .greeting-sub { background: linear-gradient(45deg, #6c5ce7, #e17055); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; font-size: 2rem; margin: 0 0 20px 0; }
+        #quote-container { height: 50px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
+        #quote-text { font-size: 0.9rem; color: #555; font-style: italic; transition: opacity 0.5s; }
+
+        select, .big-btn { width: 100%; padding: 15px; margin: 8px 0; border-radius: 12px; border: 1px solid #ddd; font-size: 1rem; outline: none; font-family: inherit; }
+        .big-btn { background: var(--primary); color: white; border: none; font-weight: 700; cursor: pointer; transition: transform 0.2s; }
+        .big-btn:active { transform: scale(0.98); }
+        .btn-stress { background: var(--danger); }
+
+        /* --- QUIZ LAYOUT --- */
+        #quiz-interface { display: none; height: 100%; flex-direction: column; }
+        .top-bar { background: rgba(255,255,255,0.95); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 40; }
+        .timer { background: #fff0f0; color: var(--danger); padding: 6px 14px; border-radius: 10px; font-weight: 700; }
+
+        .main-content { flex: 1; display: flex; overflow: hidden; position: relative; }
+        .panel { flex: 1; padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .left-panel { background: rgba(255,255,255,0.6); }
+        .right-panel { display: none; background: white; border-left: 1px solid #eee; }
+
+        .q-card { background: white; padding: 20px; margin-bottom: 15px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .opt-btn { display: block; width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #eee; background: #f9f9f9; border-radius: 10px; text-align: left; cursor: pointer; }
+        .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .action-bar { padding: 15px; background: white; border-top: 1px solid #eee; display: flex; gap: 10px; }
+        .submit-btn { flex: 1; padding: 15px; background: var(--success); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+
+        /* --- CHATBOT STYLES --- */
+        #chatbot-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; font-family: 'Inter', sans-serif; }
+        
+        /* Toggle Button */
+        #chatbot-toggle {
+            width: 60px; height: 60px; border-radius: 50%; 
+            background: var(--chat-accent); color: white; 
+            border: none; cursor: pointer; 
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4);
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
+        }
+        #chatbot-toggle:hover { transform: scale(1.1); }
+
+        /* Chat Window */
+        #chatbot-window {
+            position: absolute; bottom: 80px; right: 0;
+            width: 340px; 
+            height: 500px; 
+            max-height: calc(100vh - 120px); 
+            background: #1f2937; /* Dark Theme */
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            transform-origin: bottom right;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scale(0); opacity: 0; pointer-events: none;
+        }
+        #chatbot-window.open { transform: scale(1); opacity: 1; pointer-events: auto; }
+
+        /* Header */
+        .chat-header { 
+            padding: 16px; background: #111827; 
+            color: white; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0;
+        }
+
+        /* Body (Scrollable) */
+        .chat-body { 
+            flex: 1; 
+            padding: 16px; 
+            overflow-y: auto; 
+            background: #1f2937;
+            display: flex; flex-direction: column; gap: 12px;
+            min-height: 0; 
+        }
+        
+        /* Custom Scrollbar */
+        .chat-body::-webkit-scrollbar { width: 6px; }
+        .chat-body::-webkit-scrollbar-track { background: #111827; }
+        .chat-body::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
+
+        /* Footer */
+        .chat-footer { 
+            padding: 12px; background: #111827; border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex; gap: 8px; flex-shrink: 0;
+        }
+        
+        .chat-input { 
+            flex: 1; padding: 10px 16px; border-radius: 20px; 
+            border: 1px solid #374151; outline: none; 
+            background: #374151; color: white; font-size: 0.9rem;
+        }
+        .chat-input::placeholder { color: #9ca3af; }
+        
+        .chat-send { 
+            width: 40px; height: 40px; border-radius: 50%; 
+            background: var(--chat-accent); color: white; border: none; 
+            cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Messages */
+        .msg { padding: 8px 14px; border-radius: 14px; font-size: 0.9rem; max-width: 85%; line-height: 1.4; word-wrap: break-word; animation: fadeIn 0.2s; }
+        .bot-msg { background: #374151; color: #e5e7eb; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .user-msg { background: var(--chat-accent); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        @keyframes fadeIn { from{opacity:0; transform:translateY(5px)} to{opacity:1; transform:translateY(0)} }
+
+        /* Animated Tooltips */
+        #chatbot-tooltip { position: absolute; bottom: 75px; right: 0; pointer-events: none; }
+        .tooltip-item {
+            position: absolute; bottom: 0; right: 0;
+            background-color: #374151; color: white;
+            padding: 8px 16px; border-radius: 10px;
+            font-size: 13px; font-weight: 500;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            white-space: nowrap; opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInOutUp 4s ease-in-out forwards;
+        }
+        @keyframes fadeInOutUp {
+            0% { opacity: 0; transform: translateY(10px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
+        .tooltip-item:nth-child(1) { animation-delay: 1s; }
+        .tooltip-item:nth-child(2) { animation-delay: 5s; }
+        .tooltip-item:nth-child(3) { animation-delay: 9s; }
+
+        /* Mobile Layout */
+        @media (max-width: 768px) {
+            .main-content { flex-direction: column; }
+            .right-panel { order: -1; border-left: none; border-bottom: 2px solid #eee; max-height: 60vh; }
+            .left-panel { order: 1; }
+            
+            #chatbot-window { width: 90vw; right: 20px; bottom: 90px; }
+        }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 200; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 350px; }
+    </style>
+</head>
+<body>
+
+<div id="welcome-screen">
+    <div class="dashboard-card">
+        <h2 class="greeting-sub">Mrs. Harini ❤️</h2>
+        <div id="quote-container"><p id="quote-text">"Believe in yourself."</p></div>
+        <select id="q-count">
+            <option value="10">📝 10 Questions</option>
+            <option value="20">🔥 20 Questions</option>
+            <option value="5">⚡ 5 Questions</option>
+        </select>
+        <button class="big-btn" onclick="initQuiz()">🚀 Start Quiz</button>
+        <button class="big-btn btn-stress" style="margin-top:10px;" onclick="toggleModal(true)">❤️ Panic Button</button>
+    </div>
+</div>
+
+<div id="quiz-interface">
+    <div class="top-bar">
+        <div style="font-weight:800;">🩺 NEET Mock</div>
+        <div class="timer" id="timer">00:00</div>
+    </div>
+    <div class="main-content">
+        <div class="panel left-panel" id="questions-container"></div>
+        <div class="panel right-panel" id="explanations-container">
+            <div style="text-align:center; margin-bottom:20px;">
+                <h1 id="score-display" style="font-size:3rem; margin:0;">0</h1>
+                <p id="feedback-display">Submit to see results</p>
+            </div>
+            <div id="exp-list"></div>
+        </div>
+    </div>
+    <div class="action-bar">
+        <button id="submitBtn" class="submit-btn" onclick="submitExam()">Submit Test</button>
+        <button id="restartBtn" class="submit-btn" style="background:#0984e3; display:none;" onclick="window.location.reload()">🔄 New Test</button>
+        <button id="resultPanicBtn" class="submit-btn" style="background:var(--danger); display:none;" onclick="toggleModal(true)">❤️ Relax</button>
+    </div>
+</div>
+
+<div id="chatbot-container">
+    <div id="chatbot-tooltip">
+        <div class="tooltip-item">Hey Future Doctor! 👋</div>
+        <div class="tooltip-item"> Hari AI 🤖</div>
+        <div class="tooltip-item">Ask me your doubts! 💡</div>
+    </div>
+
+    <div id="chatbot-window">
+        <div class="chat-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i data-lucide="bot" style="width:24px; height:24px;"></i>
+                <span>Hari AI</span>
+            </div>
+            <button onclick="toggleChat()" style="background:none; border:none; color:white; cursor:pointer;"><i data-lucide="x"></i></button>
+        </div>
+        
+        <div class="chat-body" id="chatBody">
+            <div class="msg bot-msg">Hi Harini! ❤️ I'm here to help.</div>
+        </div>
+        
+        <div class="chat-footer">
+            <input type="text" id="chatInput" class="chat-input" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendChat()">
+            <button class="chat-send" onclick="sendChat()"><i data-lucide="send-horizontal" style="width:20px;"></i></button>
+        </div>
+    </div>
+
+    <button id="chatbot-toggle" onclick="toggleChat()">
+        <i data-lucide="message-circle" style="width:30px; height:30px;"></i>
+    </button>
+</div>
+
+<div id="panicModal" class="modal" onclick="toggleModal(false)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h3 style="color:var(--danger);">Relax... 🌿</h3>
+        <audio controls style="width:100%; margin-top:15px;"><source src="/static/voice_note.mp3" type="audio/mpeg"></audio>
+        <button onclick="toggleModal(false)" style="margin-top:20px; padding:10px 30px; border:none; background:#eee; border-radius:20px; cursor:pointer;">Close</button>
+    </div>
+</div>
+
+<script>
+    // --- ICONS & QUOTES ---
+    lucide.createIcons();
+    const quotes = ["Believe in yourself.", "Dream it. Wish it. Do it.", "Your only limit is you.", "Don't stop until you're proud."];
+    let qIdx = 0;
+    setInterval(() => {
+        const el = document.getElementById('quote-text');
+        el.style.opacity = 0;
+        setTimeout(() => { el.innerText = `"${quotes[qIdx]}"`; el.style.opacity = 1; qIdx = (qIdx+1)%quotes.length; }, 500);
+    }, 4000);
+
+    // --- QUIZ LOGIC ---
+    let paperData = [], userAnswers = {}, timerInterval, totalTime, timeLeft;
+    
+    async function initQuiz() {
+        const count = document.getElementById('q-count').value;
+        totalTime = count * 60; timeLeft = totalTime;
+        document.getElementById('welcome-screen').style.display = 'none';
+        document.getElementById('quiz-interface').style.display = 'flex';
+        const res = await fetch(`/api/get_exam?count=${count}`);
+        paperData = await res.json();
+        renderQuestions();
+        startTimer();
+    }
+
+    function renderQuestions() {
+        const div = document.getElementById('questions-container');
+        div.innerHTML = '';
+        paperData.forEach((q, i) => {
+            div.innerHTML += `
+            <div class="q-card">
+                <span style="font-size:0.7rem; background:#f1f2f6; padding:4px 8px; border-radius:6px;">${q.subject}</span>
+                <p style="font-weight:600; margin:10px 0;">Q${i+1}. ${q.question}</p>
+                <div>${q.options.map(opt => `<button class="opt-btn" onclick="selectOption(this, '${q.id}', '${opt.replace(/'/g, "\\'")}')">${opt}</button>`).join('')}</div>
+            </div>`;
+        });
+    }
+
+    function selectOption(btn, qId, val) {
+        if(document.getElementById('submitBtn').style.display === 'none') return;
+        Array.from(btn.parentElement.children).forEach(c => c.classList.remove('selected'));
+        btn.classList.add('selected');
+        userAnswers[qId] = val;
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            if(timeLeft<=0) { submitExam(); return; }
+            timeLeft--;
+            let m = Math.floor(timeLeft/60), s = timeLeft%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+        }, 1000);
+    }
+
+    function submitExam() {
+        clearInterval(timerInterval);
+        const timeTaken = totalTime - timeLeft;
+        document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('restartBtn').style.display = 'block';
+        document.getElementById('resultPanicBtn').style.display = 'block';
+
+        fetch('/api/submit', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ answers: userAnswers, paper: paperData, time_taken: timeTaken })
+        }).then(res=>res.json()).then(data => {
+            document.getElementById('explanations-container').style.display = 'block';
+            document.getElementById('score-display').innerHTML = `${data.score}`;
+            document.getElementById('feedback-display').innerText = data.feedback;
+            
+            if(data.score > 50) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+            const list = document.getElementById('exp-list');
+            list.innerHTML = '';
+            data.analysis.forEach((item, i) => {
+                const color = item.status==='correct'?'#00b894':(item.status==='wrong'?'#ff7675':'#b2bec3');
+                list.innerHTML += `
+                <div style="background:white; padding:15px; border-radius:15px; border-left:5px solid ${color}; margin-bottom:15px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+                    <strong style="color:${color}">Q${i+1}</strong>
+                    <p style="font-size:0.9rem;">${item.question}</p>
+                    <div style="background:#f4f7f6; padding:10px; border-radius:10px; font-size:0.85rem; color:#555; margin-top:10px;">💡 ${item.explanation}</div>
+                </div>`;
+            });
+            if(window.innerWidth<=768) document.querySelector('.main-content').scrollTop = 0;
+        });
+    }
+
+    // --- CHATBOT LOGIC (FIXED FOR DOUBLE MESSAGES) ---
+    function toggleChat() {
+        const win = document.getElementById('chatbot-window');
+        const tooltip = document.getElementById('chatbot-tooltip');
+        win.classList.toggle('open');
+        if(win.classList.contains('open') && tooltip) tooltip.style.display = 'none';
+    }
+
+    async function sendChat() {
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if(!msg) return;
+        
+        // 1. User Message
+        addMsg(msg, 'user-msg');
+        input.value = '';
+        
+        // 2. Typing Indicator
+        const thinkId = 'think-'+Date.now();
+        addMsg('Typing...', 'bot-msg', thinkId);
+
+        let context = "General";
+        const match = msg.match(/Q(\d+)/i);
+        if (match && paperData.length > 0) {
+            const qIndex = parseInt(match[1]) - 1;
+            if (paperData[qIndex]) context = paperData[qIndex].question + " Answer: " + paperData[qIndex].answer;
+        }
+
+        try {
+            const res = await fetch('/api/chat_ai', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ query: msg, context: context })
+            });
+            const data = await res.json();
+            
+            // Remove Typing Indicator
+            document.getElementById(thinkId).remove();
+            
+            // 3. COMBINE Text + Button (Fix for duplicate message bug)
+            const btnId = 'voice-'+Date.now();
+            const combinedHTML = `
+                <div>${data.reply}</div>
+                <button id="${btnId}" onclick="playVoice('${data.reply.replace(/'/g, "\\'")}', '${btnId}')" style="margin-top:8px; padding:6px 12px; background:#0ea5e9; color:white; border:none; border-radius:12px; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:5px;"><i data-lucide="volume-2" style="width:14px;"></i> Listen</button>
+            `;
+            addMsg(combinedHTML, 'bot-msg');
+            lucide.createIcons(); // Re-render icons
+            
+        } catch (e) {
+            document.getElementById(thinkId).remove();
+            addMsg("Sorry, connection failed.", 'bot-msg');
+        }
+    }
+
+    function addMsg(html, type, id=null) {
+        const body = document.getElementById('chatBody');
+        const div = document.createElement('div');
+        div.className = `msg ${type}`;
+        if(id) div.id = id;
+        div.innerHTML = html;
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function playVoice(text, btnId) {
+        const btn = document.getElementById(btnId);
+        const originalText = btn.innerHTML;
+        btn.innerHTML = "⏳ Loading...";
+        btn.disabled = true;
+        fetch('/api/speak_clone', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ text: text })
+        }).then(res=>res.json()).then(data => {
+            const audio = new Audio(data.audio_url);
+            audio.play();
+            btn.innerHTML = "▶️ Playing...";
+            audio.onended = () => { btn.innerHTML = originalText; btn.disabled = false; };
+        });
+    }
+
+    function toggleModal(show) { document.getElementById('panicModal').style.display = show ? 'flex' : 'none'; }
+</script>
+</body>
+</html>
