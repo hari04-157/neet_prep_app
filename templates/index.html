@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>For Mrs. Harini ❤️</title>
+    <title>❤️ NEET Prep</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -24,16 +24,19 @@
         body { 
             font-family: 'Poppins', sans-serif; 
             margin: 0; padding: 0; 
-            height: 100vh; /* Fallback */
-            height: 100dvh; /* Mobile Viewport Height */
+            height: 100vh; height: 100dvh; 
             display: flex; flex-direction: column;
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
             overflow: hidden;
-            touch-action: manipulation; /* Improves touch response */
         }
         @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* --- SCROLLBAR STYLING --- */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
 
         /* --- WELCOME SCREEN --- */
         #welcome-screen { 
@@ -41,22 +44,17 @@
             z-index: 50; display: flex; flex-direction: column; 
             justify-content: center; align-items: center; padding: 20px;
             background: rgba(255,255,255,0.4); backdrop-filter: blur(20px);
-            overflow-y: auto; /* Allow scrolling on small screens if needed */
         }
         .dashboard-card { 
             background: rgba(255,255,255,0.95); padding: 40px; 
             border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
             width: 100%; max-width: 400px; text-align: center; 
         }
-        
         .greeting-sub { 
             background: linear-gradient(45deg, #6c5ce7, #e17055); 
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
             font-weight: 800; font-size: 2rem; margin: 0 0 20px 0; 
         }
-        #quote-container { height: 50px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
-        #quote-text { font-size: 0.9rem; color: #555; font-style: italic; transition: opacity 0.5s; }
-
         select, .big-btn { 
             width: 100%; padding: 15px; margin: 8px 0; 
             border-radius: 12px; border: 1px solid #ddd; 
@@ -67,10 +65,10 @@
             font-weight: 700; cursor: pointer; transition: transform 0.2s; 
         }
         .big-btn:active { transform: scale(0.98); }
-        .btn-stress { background: var(--danger); }
 
         /* --- QUIZ LAYOUT --- */
         #quiz-interface { display: none; height: 100%; flex-direction: column; }
+        
         .top-bar { 
             background: rgba(255,255,255,0.95); padding: 15px 20px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -79,144 +77,73 @@
         .timer { background: #fff0f0; color: var(--danger); padding: 6px 14px; border-radius: 10px; font-weight: 700; }
 
         .main-content { flex: 1; display: flex; overflow: hidden; position: relative; }
+        
+        /* Two Panels: Questions (Left) & Results (Right) */
         .panel { flex: 1; padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        
+        /* Question List */
         .left-panel { background: rgba(255,255,255,0.6); }
+        
+        /* Explanation/Result List (Hidden initially) */
         .right-panel { display: none; background: white; border-left: 1px solid #eee; }
 
         .q-card { background: white; padding: 20px; margin-bottom: 15px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .q-text { font-weight: 600; margin: 10px 0; line-height: 1.5; word-wrap: break-word; }
+        
         .opt-btn { 
             display: block; width: 100%; padding: 12px; margin-top: 8px; 
             border: 1px solid #eee; background: #f9f9f9; border-radius: 10px; 
-            text-align: left; cursor: pointer; 
+            text-align: left; cursor: pointer; transition: all 0.2s;
         }
-        .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+        .opt-btn.selected { background: var(--primary); color: white; border-color: var(--primary); transform: translateX(5px); }
 
         .action-bar { 
             padding: 15px; background: white; border-top: 1px solid #eee; 
-            display: flex; gap: 10px; flex-shrink: 0; 
+            display: flex; gap: 10px; flex-shrink: 0; z-index: 50;
         }
         .submit-btn { flex: 1; padding: 15px; background: var(--success); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
 
-        /* --- FIXED CHATBOT LAYOUT (Click-Through Fix) --- */
-        #chatbot-container { 
-            position: fixed; bottom: 20px; right: 20px; z-index: 1000; 
-            font-family: 'Inter', sans-serif;
-            /* FIX: Allow clicks to pass through empty space */
-            pointer-events: none; 
-        }
-        
-        /* 1. Toggle Button */
-        #chatbot-toggle {
-            width: 60px; height: 60px; border-radius: 50%; 
-            background: var(--chat-accent); color: white; 
-            border: none; cursor: pointer; 
-            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4);
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.2s;
-            /* FIX: Re-enable clicks for button */
-            pointer-events: auto; 
-        }
-        #chatbot-toggle:hover { transform: scale(1.1); }
-
-        /* 2. Chat Window */
-        #chatbot-window {
-            position: absolute; bottom: 80px; right: 0;
-            width: 350px; 
-            height: 500px; 
-            max-height: calc(100vh - 120px); 
-            background: #1f2937; 
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column; 
-            overflow: hidden;
-            transform-origin: bottom right;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform: scale(0); opacity: 0; 
-            /* FIX: Re-enable clicks for window, initially hidden */
-            pointer-events: none; 
-        }
-        #chatbot-window.open { transform: scale(1); opacity: 1; pointer-events: auto; }
-
-        /* Header */
-        .chat-header { 
-            padding: 16px; background: #111827; 
-            color: white; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex; justify-content: space-between; align-items: center;
-            flex-shrink: 0;
-        }
-
-        /* Body */
-        .chat-body { 
-            flex: 1; padding: 16px; overflow-y: auto; 
-            background: #1f2937; 
-            display: flex; flex-direction: column; gap: 12px; 
-            min-height: 0;
-            scrollbar-width: thin; scrollbar-color: #4b5563 var(--chat-header);
-        }
-        .chat-body::-webkit-scrollbar { width: 8px; }
-        .chat-body::-webkit-scrollbar-track { background: var(--chat-header); }
-        .chat-body::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-
-        /* Footer */
-        .chat-footer { 
-            padding: 12px; background: #111827; 
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex; gap: 8px; flex-shrink: 0;
-        }
-        
-        .chat-input { 
-            flex: 1; padding: 10px 16px; border-radius: 20px; 
-            border: 1px solid #374151; outline: none; 
-            background: #374151; color: white; font-size: 0.9rem;
-        }
-        
-        .chat-send { 
-            width: 40px; height: 40px; border-radius: 50%; 
-            background: var(--chat-accent); color: white; border: none; 
-            cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-        }
-
-        /* Messages */
-        .msg { padding: 8px 14px; border-radius: 14px; font-size: 0.9rem; max-width: 85%; line-height: 1.4; word-wrap: break-word; animation: fadeIn 0.2s; }
-        .bot-msg { background: #374151; color: #e5e7eb; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .user-msg { background: var(--chat-accent); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        @keyframes fadeIn { from{opacity:0; transform:translateY(5px)} to{opacity:1; transform:translateY(0)} }
-
-        /* Tooltips */
-        #chatbot-tooltip { position: absolute; bottom: 75px; right: 0; pointer-events: none; }
-        .tooltip-item {
-            position: absolute; bottom: 0; right: 0;
-            background-color: var(--dark); color: white;
-            padding: 8px 16px; border-radius: 10px;
-            font-size: 13px; font-weight: 500;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            white-space: nowrap; opacity: 0;
-            transform: translateY(10px);
-            animation: fadeInOutUp 4s ease-in-out forwards;
-        }
-        @keyframes fadeInOutUp {
-            0% { opacity: 0; transform: translateY(10px); }
-            15% { opacity: 1; transform: translateY(0); }
-            85% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-10px); }
-        }
-        .tooltip-item:nth-child(1) { animation-delay: 1s; }
-        .tooltip-item:nth-child(2) { animation-delay: 5s; }
-        .tooltip-item:nth-child(3) { animation-delay: 9s; }
-
-        .typing-indicator span { height: 6px; width: 6px; background-color: #ccc; border-radius: 50%; display: inline-block; animation: bounce 1.4s infinite ease-in-out both; margin: 0 2px; }
-        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
-        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
-
-        /* Mobile Layout */
+        /* --- MOBILE OPTIMIZATION --- */
         @media (max-width: 768px) {
             .main-content { flex-direction: column; }
-            .right-panel { order: -1; border-left: none; border-bottom: 2px solid #eee; max-height: 60vh; }
-            .left-panel { order: 1; }
-            #chatbot-window { width: 90vw; right: 20px; bottom: 90px; }
+            .dashboard-card { padding: 30px 20px; width: 90%; }
+            
+            /* On mobile, when results are shown, hide the question list completely to avoid clutter */
+            .mobile-result-view .left-panel { display: none !important; }
+            .mobile-result-view .right-panel { display: block !important; width: 100%; }
+            
+            /* Adjust Chatbot for mobile */
+            #chatbot-window { width: 90vw !important; right: 5vw !important; bottom: 80px !important; }
         }
+
+        /* --- CHATBOT --- */
+        #chatbot-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; pointer-events: none; }
+        #chatbot-toggle { 
+            width: 60px; height: 60px; border-radius: 50%; background: var(--chat-accent); 
+            color: white; border: none; cursor: pointer; pointer-events: auto;
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4); display: flex; align-items: center; justify-content: center; 
+            transition: transform 0.2s;
+        }
+        #chatbot-toggle:active { transform: scale(0.9); }
+        
+        #chatbot-window {
+            position: absolute; bottom: 80px; right: 0; width: 350px; height: 500px; 
+            max-height: calc(100vh - 120px); background: #1f2937; 
+            border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; overflow: hidden;
+            transform: scale(0); opacity: 0; pointer-events: none;
+            transition: all 0.2s ease; transform-origin: bottom right;
+        }
+        #chatbot-window.open { transform: scale(1); opacity: 1; pointer-events: auto; }
+        
+        .chat-header { padding: 15px; background: #111827; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .chat-footer { padding: 10px; background: #111827; display: flex; gap: 8px; }
+        .chat-input { flex: 1; padding: 10px 15px; border-radius: 20px; border: none; background: #374151; color: white; outline: none; }
+        
+        .msg { padding: 8px 12px; border-radius: 12px; font-size: 0.9rem; max-width: 85%; line-height: 1.4; }
+        .bot-msg { background: #374151; color: #eee; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .user-msg { background: var(--chat-accent); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
 
         /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 200; align-items: center; justify-content: center; }
@@ -227,168 +154,269 @@
 
 <div id="welcome-screen">
     <div class="dashboard-card">
-        <h2 class="greeting-sub">Mrs. Harini ❤️</h2>
-        <div id="quote-container"><p id="quote-text">"Believe in yourself."</p></div>
+        <h2 class="greeting-sub">❤️ Hello </h2>
+        <div id="quote-container" style="height:40px; margin-bottom:15px;"><p id="quote-text" style="font-style:italic; color:#555;">"Believe in yourself."</p></div>
+        
+        <label style="display:block; text-align:left; font-size:0.9rem; color:#555; margin-bottom:5px;">How many questions?</label>
         <select id="q-count">
             <option value="10">📝 10 Questions</option>
             <option value="20">🔥 20 Questions</option>
-            <option value="45">🩺 45 Questions</option>
-            <option value="5">⚡ 5 Questions</option>
+            <option value="45">🩺 45 Questions (Full Subject)</option>
+            <option value="5">⚡ 5 Questions (Quick)</option>
         </select>
-        <button class="big-btn" onclick="initQuiz()">🚀 Start Quiz</button>
-        <button class="big-btn btn-stress" style="margin-top:10px;" onclick="toggleModal(true)">❤️ Panic Button</button>
+        <button class="big-btn" onclick="initQuiz()">🚀 Start Test</button>
+        <button class="big-btn" style="background:var(--danger); margin-top:10px;" onclick="toggleModal(true)">❤️ Panic Button</button>
     </div>
 </div>
 
 <div id="quiz-interface">
     <div class="top-bar">
-        <div style="font-weight:800;">🩺 NEET Mock</div>
+        <div style="font-weight:800; display:flex; align-items:center; gap:5px;">
+            <i data-lucide="activity"></i> NEET Mock
+        </div>
         <div class="timer" id="timer">00:00</div>
     </div>
-    <div class="main-content">
+    
+    <div class="main-content" id="main-layout">
         <div class="panel left-panel" id="questions-container"></div>
+        
         <div class="panel right-panel" id="explanations-container">
-            <div style="text-align:center; margin-bottom:20px;">
-                <h1 id="score-display" style="font-size:3rem; margin:0;">0</h1>
-                <p id="feedback-display">Submit to see results</p>
+            <div style="text-align:center; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid #eee;">
+                <p style="color:#777; margin:0;">Your Score</p>
+                <h1 id="score-display" style="font-size:3.5rem; margin:0; line-height:1;">0</h1>
+                <p id="feedback-display" style="font-weight:600; color:var(--primary);">Submit to see results</p>
             </div>
             <div id="exp-list"></div>
         </div>
     </div>
+    
     <div class="action-bar">
         <button id="submitBtn" class="submit-btn" onclick="submitExam()">Submit Test</button>
-        <button id="restartBtn" class="submit-btn" style="background:#0984e3; display:none;" onclick="window.location.reload()">🔄 New Test</button>
+        <button id="restartBtn" class="submit-btn" style="background:#0984e3; display:none;" onclick="resetQuiz()">🔄 New Test</button>
         <button id="resultPanicBtn" class="submit-btn" style="background:var(--danger); display:none;" onclick="toggleModal(true)">❤️ Relax</button>
     </div>
 </div>
 
 <div id="chatbot-container">
-    <div id="chatbot-tooltip">
-        <div class="tooltip-item">Hey Future Doctor! 👋</div>
-        <div class="tooltip-item"> Hari AI 🤖</div>
-        <div class="tooltip-item">Ask me your doubts! 💡</div>
-    </div>
-
     <div id="chatbot-window">
         <div class="chat-header">
             <div style="display:flex; align-items:center; gap:10px;">
-                <i data-lucide="bot" style="width:24px; height:24px;"></i>
-                <span>Hari AI</span>
+                <i data-lucide="bot" style="width:20px;"></i> <span> AI</span>
             </div>
             <button onclick="toggleChat()" style="background:none; border:none; color:white; cursor:pointer;"><i data-lucide="x"></i></button>
         </div>
         <div class="chat-body" id="chatBody">
-            <div class="msg bot-msg">Hi Harini! ❤️ I'm here to help.</div>
+            <div class="msg bot-msg">Hi! I'm here to help you study. Ask me anything!</div>
         </div>
         <div class="chat-footer">
-            <input type="text" id="chatInput" class="chat-input" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendChat()">
-            <button class="chat-send" onclick="sendChat()"><i data-lucide="send-horizontal" style="width:20px;"></i></button>
+            <input type="text" id="chatInput" class="chat-input" placeholder="Ask a doubt..." onkeypress="if(event.key==='Enter') sendChat()">
+            <button style="background:var(--chat-accent); border:none; width:35px; height:35px; border-radius:50%; color:white; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="sendChat()">
+                <i data-lucide="send" style="width:16px;"></i>
+            </button>
         </div>
     </div>
-
     <button id="chatbot-toggle" onclick="toggleChat()">
-        <i data-lucide="message-circle" style="width:30px; height:30px;"></i>
+        <i data-lucide="message-circle" style="width:28px;"></i>
     </button>
 </div>
 
 <div id="panicModal" class="modal" onclick="toggleModal(false)">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h3 style="color:var(--danger);">Relax... 🌿</h3>
+        <h3 style="color:var(--danger);">Take a deep breath... 🌿</h3>
+        <p style="color:#666; font-size:0.9rem;">You are doing great.</p>
         <audio controls style="width:100%; margin-top:15px;"><source src="/static/voice_note.mp3" type="audio/mpeg"></audio>
-        <button onclick="toggleModal(false)" style="margin-top:20px; padding:10px 30px; border:none; background:#eee; border-radius:20px; cursor:pointer;">Close</button>
+        <button onclick="toggleModal(false)" style="margin-top:20px; padding:10px 30px; border:none; background:#eee; border-radius:20px; cursor:pointer; font-weight:600;">Close</button>
     </div>
 </div>
 
 <script>
     lucide.createIcons();
-    const quotes = ["Believe in yourself.", "Dream it. Wish it. Do it.", "Your only limit is you.", "Don't stop until you're proud."];
+    const quotes = ["Believe in yourself.", "You are capable of amazing things.", "One step at a time.", "Dream big, work hard."];
     let qIdx = 0;
+    
+    // Rotating Quotes
     setInterval(() => {
         const el = document.getElementById('quote-text');
         el.style.opacity = 0;
-        setTimeout(() => { el.innerText = `"${quotes[qIdx]}"`; el.style.opacity = 1; qIdx = (qIdx+1)%quotes.length; }, 500);
+        setTimeout(() => { 
+            el.innerText = `"${quotes[qIdx]}"`; 
+            el.style.opacity = 1; 
+            qIdx = (qIdx+1)%quotes.length; 
+        }, 500);
     }, 4000);
 
     let paperData = [], userAnswers = {}, timerInterval, totalTime, timeLeft;
     
+    // --- 1. START QUIZ ---
     async function initQuiz() {
         const count = document.getElementById('q-count').value;
         totalTime = count * 60; timeLeft = totalTime;
+        
         document.getElementById('welcome-screen').style.display = 'none';
         document.getElementById('quiz-interface').style.display = 'flex';
-        const res = await fetch(`/api/get_exam?count=${count}`);
-        paperData = await res.json();
-        renderQuestions();
-        startTimer();
+        
+        // Show loading state
+        document.getElementById('questions-container').innerHTML = '<div style="text-align:center; padding:20px;">Loading questions...</div>';
+        
+        try {
+            const res = await fetch(`/api/get_exam?count=${count}`);
+            paperData = await res.json();
+            renderQuestions();
+            startTimer();
+        } catch(e) {
+            alert("Error loading questions. Please try again.");
+            resetQuiz();
+        }
     }
 
+    // --- 2. RENDER QUESTIONS ---
     function renderQuestions() {
         const div = document.getElementById('questions-container');
         div.innerHTML = '';
         paperData.forEach((q, i) => {
             div.innerHTML += `
-            <div class="q-card">
-                <span style="font-size:0.7rem; background:#f1f2f6; padding:4px 8px; border-radius:6px;">${q.subject}</span>
-                <p style="font-weight:600; margin:10px 0;">Q${i+1}. ${q.question}</p>
-                <div>${q.options.map(opt => `<button class="opt-btn" onclick="selectOption(this, '${q.id}', '${opt.replace(/'/g, "\\'")}')">${opt}</button>`).join('')}</div>
+            <div class="q-card" id="q-card-${q.id}">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:#888; letter-spacing:1px;">${q.subject}</span>
+                    <span style="font-size:0.8rem; background:#f0f0f0; padding:2px 8px; border-radius:4px;">Q${i+1}</span>
+                </div>
+                <p class="q-text">${q.question}</p>
+                <div>${q.options.map(opt => 
+                    `<button class="opt-btn" onclick="selectOption(this, '${q.id}', '${opt.replace(/'/g, "\\'")}')">${opt}</button>`
+                ).join('')}</div>
             </div>`;
         });
     }
 
     function selectOption(btn, qId, val) {
-        if(document.getElementById('submitBtn').style.display === 'none') return;
-        Array.from(btn.parentElement.children).forEach(c => c.classList.remove('selected'));
+        if(document.getElementById('submitBtn').style.display === 'none') return; // Read-only after submit
+        
+        const parent = btn.parentElement;
+        Array.from(parent.children).forEach(c => c.classList.remove('selected'));
         btn.classList.add('selected');
         userAnswers[qId] = val;
     }
 
     function startTimer() {
+        clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             if(timeLeft<=0) { submitExam(); return; }
             timeLeft--;
             let m = Math.floor(timeLeft/60), s = timeLeft%60;
             document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            
+            // Visual warning for low time
+            if(timeLeft < 60) document.getElementById('timer').style.color = 'red';
+            else document.getElementById('timer').style.color = 'var(--danger)';
         }, 1000);
     }
 
+    // --- 3. SUBMIT & MOBILE LAYOUT HANDLING ---
     function submitExam() {
         clearInterval(timerInterval);
         const timeTaken = totalTime - timeLeft;
+        
+        // UI Changes
         document.getElementById('submitBtn').style.display = 'none';
         document.getElementById('restartBtn').style.display = 'block';
         document.getElementById('resultPanicBtn').style.display = 'block';
+        
+        // MOBILE: Enable result view mode (Hides questions, shows results full screen)
+        document.getElementById('main-layout').classList.add('mobile-result-view');
+        document.getElementById('explanations-container').style.display = 'block';
 
         fetch('/api/submit', {
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ answers: userAnswers, paper: paperData, time_taken: timeTaken })
         }).then(res=>res.json()).then(data => {
-            document.getElementById('explanations-container').style.display = 'block';
-            document.getElementById('score-display').innerHTML = `${data.score}`;
-            document.getElementById('feedback-display').innerText = data.feedback;
             
-            if(data.score > 50) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            // Animate Score
+            animateValue("score-display", 0, data.score, 1000);
+            document.getElementById('feedback-display').innerText = data.badge + " - " + data.feedback;
+            
+            if(data.score > (data.max_marks * 0.6)) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
 
             const list = document.getElementById('exp-list');
             list.innerHTML = '';
+            
             data.analysis.forEach((item, i) => {
                 const color = item.status==='correct'?'#00b894':(item.status==='wrong'?'#ff7675':'#b2bec3');
+                const icon = item.status==='correct'?'✅':(item.status==='wrong'?'❌':'⚠️');
+                
                 list.innerHTML += `
-                <div style="background:white; padding:15px; border-radius:15px; border-left:5px solid ${color}; margin-bottom:15px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
-                    <strong style="color:${color}">Q${i+1}</strong>
-                    <p style="font-size:0.9rem;">${item.question}</p>
-                    <div style="background:#f4f7f6; padding:10px; border-radius:10px; font-size:0.85rem; color:#555; margin-top:10px;">💡 ${item.explanation}</div>
+                <div style="background:white; padding:15px; border-radius:12px; border-left:4px solid ${color}; margin-bottom:15px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <strong style="color:${color}">Q${i+1} ${icon}</strong>
+                        <span style="font-size:0.8rem; color:#888;">${item.status.toUpperCase()}</span>
+                    </div>
+                    <p style="font-size:0.9rem; margin:5px 0; font-weight:600;">${item.question}</p>
+                    
+                    <div style="font-size:0.85rem; margin-top:8px;">
+                        <div style="color:${item.status==='wrong'?'#ff7675':'#555'}">You: <strong>${item.user_answer}</strong></div>
+                        <div style="color:#00b894">Ans: <strong>${item.correct_answer}</strong></div>
+                    </div>
+
+                    <div style="background:#f4f7f6; padding:10px; border-radius:8px; font-size:0.85rem; color:#444; margin-top:10px; line-height:1.4;">
+                        <strong>💡 Explanation:</strong> ${item.explanation}
+                    </div>
                 </div>`;
             });
-            if(window.innerWidth<=768) document.querySelector('.main-content').scrollTop = 0;
+            
+            // Scroll to top on mobile so they see the score immediately
+            document.querySelector('.right-panel').scrollTop = 0;
         });
     }
 
-    // --- CHATBOT LOGIC ---
+    // --- 4. SOFT RESTART (The Feature You Asked For) ---
+    function resetQuiz() {
+        // Hide Interface
+        document.getElementById('quiz-interface').style.display = 'none';
+        
+        // Show Welcome Screen
+        document.getElementById('welcome-screen').style.display = 'flex';
+        
+        // Reset Mobile View Classes
+        document.getElementById('main-layout').classList.remove('mobile-result-view');
+        
+        // Reset Internal Data
+        paperData = [];
+        userAnswers = {};
+        clearInterval(timerInterval);
+        
+        // Reset DOM elements
+        document.getElementById('questions-container').innerHTML = '';
+        document.getElementById('exp-list').innerHTML = '';
+        document.getElementById('score-display').innerText = '0';
+        document.getElementById('feedback-display').innerText = '';
+        document.getElementById('timer').innerText = '00:00';
+        document.getElementById('timer').style.color = 'var(--danger)';
+        
+        // Reset Buttons
+        document.getElementById('submitBtn').style.display = 'block';
+        document.getElementById('restartBtn').style.display = 'none';
+        document.getElementById('resultPanicBtn').style.display = 'none';
+        
+        // Hide Right Panel
+        document.getElementById('explanations-container').style.display = 'none';
+    }
+
+    function animateValue(id, start, end, duration) {
+        if (start === end) return;
+        const range = end - start;
+        let current = start;
+        const increment = end > start ? 1 : -1;
+        const stepTime = Math.abs(Math.floor(duration / range));
+        const obj = document.getElementById(id);
+        const timer = setInterval(function() {
+            current += increment;
+            obj.innerHTML = current;
+            if (current == end) clearInterval(timer);
+        }, stepTime);
+    }
+
+    // --- CHATBOT ---
     function toggleChat() {
-        const win = document.getElementById('chatbot-window');
-        const tooltip = document.getElementById('chatbot-tooltip');
-        win.classList.toggle('open');
-        if(win.classList.contains('open') && tooltip) tooltip.style.display = 'none';
+        document.getElementById('chatbot-window').classList.toggle('open');
     }
 
     async function sendChat() {
@@ -399,15 +427,12 @@
         addMsg(msg, 'user-msg');
         input.value = '';
         
-        const thinkId = 'think-'+Date.now();
-        addMsg('<div class="typing-indicator"><span></span><span></span><span></span></div>', 'bot-msg', thinkId);
-
-        let context = "General";
-        const match = msg.match(/Q(\d+)/i);
-        if (match && paperData.length > 0) {
-            const qIndex = parseInt(match[1]) - 1;
-            if (paperData[qIndex]) context = paperData[qIndex].question + " Answer: " + paperData[qIndex].answer;
-        }
+        // Determine Context
+        let context = "General NEET Prep";
+        // If in review mode, try to find the last visible question explanation
+        // For simplicity, just send general context unless specific keyword found
+        
+        addMsg('Thinking...', 'bot-msg', 'temp-load');
 
         try {
             const res = await fetch('/api/chat_ai', {
@@ -415,14 +440,10 @@
                 body: JSON.stringify({ query: msg, context: context })
             });
             const data = await res.json();
-            document.getElementById(thinkId).remove();
-            
-            // SINGLE TEXT MESSAGE (No button)
+            document.getElementById('temp-load').remove();
             addMsg(data.reply, 'bot-msg');
-            
         } catch (e) {
-            document.getElementById(thinkId).remove();
-            addMsg("Sorry, connection failed.", 'bot-msg');
+            document.getElementById('temp-load').innerText = "Connection failed.";
         }
     }
 
